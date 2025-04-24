@@ -1,3 +1,48 @@
+#' Oracle Transferred Lasso Estimator
+#'
+#' @description
+#' Fits a two-stage Lasso model where information is transferred from a source dataset to a target dataset. This method estimates an initial model using the combined datasets, computes an offset based on the source data,
+#' and then fits a second Lasso model on the target dataset adjusted for this offset.
+#'
+#' @param X0 A numeric matrix of predictors from the source domain.
+#' @param y0 A response vector corresponding to `X0`.
+#' @param X1 A numeric matrix of predictors from the target domain.
+#' @param y1 A response vector corresponding to `X1`.
+#' @param nfolds Integer. Number of cross-validation folds. Default is 5.
+#' @param family Character string specifying the model family.
+#' Supported values are `"gaussian"`, `"binomial"`, `"poisson"`, or `"multinomial"`.
+#' Default is `"gaussian"`.
+#' @param ... Additional arguments passed to [glmnet()] or [cv.glmnet()].
+#'
+#' @details
+#' The function first fits a Lasso model on the combined dataset `(X0, y0)` and `(X1, y1)`
+#' using cross-validation to select the best `lambda`. Then, it computes predicted offsets based on the estimated coefficients from the source data `X0`.
+#' Finally, it fits a second Lasso model to the source data adjusted by the offset, producing a final estimate of the coefficients.
+#'
+#' Stratified folds are used for cross-validation when `family` is `"binomial"` or `"multinomial"`.
+#'
+#'
+#' @returns
+#' - If `family = "multinomial"`, a list of coefficient matrices, one for each class.
+#' - Otherwise, a matrix of estimated coefficients.
+#' @export
+#'
+#' @examples
+#' p <- 1000
+#' n0 <- 100
+#' n <- 500
+#'
+#' X0 = matrix(rnorm(n0*p), nrow = n0, ncol = p)
+#' X1 = matrix(rnorm(n*p), nrow = n, ncol = p)
+#'
+#' beta = runif(p, -2, 2) * sample(c(0,1), p, replace = TRUE, prob = c(0.9, 0.1))
+#' beta0 = beta + runif(p, -1, 1) * sample(c(0,1), p, replace = TRUE, prob = c(0.95, 0.05))
+#'
+#' y0 = X0%*%beta0 + rnorm(n0)
+#' y1 = X1%*%beta + rnorm(n)
+#'
+#' oracle_beta = oracleTransLasso(X0,y0,X1,y1)
+
 oracleTransLasso <- function(X0, y0, X1, y1, nfolds = 5, family = "gaussian",...){
   X <- rbind(X0,X1)
   y <- c(y0,y1)

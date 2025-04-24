@@ -1,11 +1,16 @@
 Package: translasso
-Title: What the Package Does (One Line, Title Case)
+Title: Perform Transfer Learning with Lasso Models
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Ting-Chien", "Huang", , "tchuang1290@gmail.com", role = "aut"),
+    person("Aaron","Molstad", ,"amolstad@umn.edu", role = "cre"))
+Description: Fits a two-stage Lasso model where information is transferred from a source dataset to a target dataset.
+    This method estimates an initial model using the combined datasets, computes an offset based on the source data,
+    and then fits a second Lasso model on the target dataset adjusted for this offset.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports: 
+    glmnet (>= 4.1.8)

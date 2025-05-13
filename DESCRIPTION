@@ -14,3 +14,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     glmnet (>= 4.1.8)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

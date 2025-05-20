@@ -1,4 +1,4 @@
-#' Oracle Transferred Lasso Estimator
+#' Oracle Transfer Learning Lasso Estimator
 #'
 #' @description
 #' Fits a two-stage Lasso model where information is transferred from a source dataset to a target dataset. This method estimates an initial model using the combined datasets, computes an offset based on the source data,

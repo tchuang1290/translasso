@@ -69,7 +69,61 @@ for (r in 1:reps){
 Now we can look at the mean, median, and range of the two lists of differences between the estimated and true coefficients.
 
 ```{r}
-
+gaussian_data1 <- data.frame(Mean = c(mean(delta1_list), mean(delta2_list)),
+                             Median = c(median(delta1_list, median(delta2_list))),
+                             Min = c(min(delta1_list, min(delta2_list))),
+                             Max = c(max(delta1_list, max(delta2_list))))
+gaussian_data1
 ```
 
+Now we can repeat this for binomial data. When using `oracletranslasso()` with binomial data, there are two important arguments that were not highlighted in the gaussian example: `family` and `nfolds`. 
+
+The `family` argument essentially defines what kind of output data we are working with. The default for this argument is `"gaussian"` meaning that with gaussian data, we do not need to address it. However, for all other types of data, not changing this argument will return inaccurate results or result in other errors. For this simulation, we will define `family = "binomial"`. 
+
+The other `nfolds`, whose default is 5, defines the number of folds for cross-validation when determining the best lambda for the generalized linear models. This argument is necessary to form stratified folds for binomial and multinomial data in order to ensure enough of each category is in each fold for the models to converge and have stability. While for most data this may not be a problem, for sparse data this is a necessary step to ensure quality results. 
+
+The following simulation is essentially the same as the first with data generated in the same way except to account for generating a binomial output.
+
+```{r}
+set.seed(2025)
+
+delta1_list <- numeric(reps)
+delta2_list <- numeric(reps)
+
+for (r in 1:reps){
+  X0 = matrix(rnorm(n0*p), nrow = n0, ncol = p)
+  X1 = matrix(rnorm(n*p), nrow = n, ncol = p)
+  
+  beta = runif(p, -2, 2) * sample(c(0,1),
+                                  p,
+                                  replace = TRUE,
+                                  prob = c(0.9, 0.1))
+  beta0 = beta + runif(p, -1, 1) * sample(c(0,1),
+                                          p,
+                                          replace = TRUE,
+                                          prob = c(0.95, 0.05))
+  
+  z0 = X0%*%beta0
+  z1 = X1%*%beta
+  
+  # convert normally distributed data into probabilities
+  pr0 = 1/(1+exp(-z0))
+  pr1 = 1/(1 + exp(-z1)) 
+  
+  y0 = rbinom(n0,1,pr0) # generate binomial results for primary sample
+  y1 = rbinom(n,1,pr1) # generate binomial results for auxiliary sample
+  
+  oracle_beta = oracleTransLasso(X0,y0,X1,y1, family = "binomial")
+  cvmodel = cv.glmnet(X0,y0,alpha = 1,family = "binomial")
+  
+  best_lambda = cvmodel$lambda.min
+  best_model = glmnet(X0,y0, alpha = 1,
+                      lambda = best_lambda,
+                      family = "binomial")
+  non_oracle_beta = as.matrix(coef(best_model))
+  
+  delta1_list[r] = sum((oracle_beta[-1] - beta0)^2)
+  delta2_list[r] = sum((non_oracle_beta[-1] - beta0)^2)
+}
+```
 

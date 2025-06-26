@@ -3,3 +3,4 @@
 export(oracleTransLasso)
 importFrom(glmnet,cv.glmnet)
 importFrom(glmnet,glmnet)
+importFrom(stats,coef)

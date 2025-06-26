@@ -7,13 +7,13 @@ Authors@R: c(
 Description: Fits a two-stage Lasso model where information is transferred from a source dataset to a target dataset.
     This method estimates an initial model using the combined datasets, computes an offset based on the source data,
     and then fits a second Lasso model on the target dataset adjusted for this offset.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    glmnet
+    glmnet,
+    stats
 Suggests: 
     knitr,
     rmarkdown

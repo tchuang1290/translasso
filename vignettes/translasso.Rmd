@@ -1,5 +1,5 @@
 ---
-title: "translasso"
+title: "Transfer Learning with oracleTransLasso: Improving Lasso Estimation with Auxiliary Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{translasso}
@@ -13,6 +13,13 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+## Introduction
+
+The `translasso` package implements a transfer learning approach for high-dimensional regression using the oracle transfer Lasso algorithm. This method is particularly useful when the primary dataset is small and the auxiliary dataset comes from a related but not identical distribution.
+
+This vignette illustrates how to apply the `oracleTransLasso()` function on both Gaussian and Binomial data and compares its performance against a standard Lasso model fit with `glmnet`.
+
 
 ```{r setup}
 library(glmnet)
@@ -44,8 +51,15 @@ for (r in 1:reps){
   X1 = matrix(rnorm(n*p), nrow = n, ncol = p)
   
   # generate coefficients to ensure slight differences
-  beta = runif(p, -2, 2) * sample(c(0,1), p, replace = TRUE, prob = c(0.9, 0.1))
-  beta0 = beta + runif(p, -1, 1) * sample(c(0,1), p, replace = TRUE, prob = c(0.95, 0.05))
+  beta = runif(p, -2, 2) * sample(c(0,1),
+                                  p,
+                                  replace = TRUE,
+                                  prob = c(0.9, 0.1))
+  
+  beta0 = beta + runif(p, -1, 1) * sample(c(0,1),
+                                          p,
+                                          replace = TRUE,
+                                          prob = c(0.95, 0.05))
   
   # output for primary (y0) and auxiliary (y1) samples
   y0 = X0%*%beta0 + rnorm(n0)
@@ -111,8 +125,8 @@ for (r in 1:reps){
   pr0 = 1/(1+exp(-z0))
   pr1 = 1/(1 + exp(-z1)) 
   
-  y0 = rbinom(n0,1,pr0) # generate binomial results for primary sample
-  y1 = rbinom(n,1,pr1) # generate binomial results for auxiliary sample
+  y0 = rbinom(n0,1,pr0)
+  y1 = rbinom(n,1,pr1)
   
   oracle_beta = oracleTransLasso(X0,y0,X1,y1, family = "binomial")
   cvmodel = cv.glmnet(X0,y0,alpha = 1,family = "binomial")
@@ -131,13 +145,16 @@ for (r in 1:reps){
 Once again, we can compare the results of the `oracletranslasso()` function with the results of a standard Lasso model.
 
 ```{r}
-binomial_data <- data.frame(Mean = c(mean(delta1_list), mean(delta2_list)),
-                             Median = c(median(delta1_list, median(delta2_list))),
-                             Min = c(min(delta1_list, min(delta2_list))),
-                             Max = c(max(delta1_list, max(delta2_list))))
+binomial_data <- data.frame(Model = c("Oracle Trans Lasso","Standard Lasso"), 
+                            Mean = c(mean(delta1_list), mean(delta2_list)),
+                            Median = c(median(delta1_list), median(delta2_list)),
+                            Min = c(min(delta1_list), min(delta2_list)),
+                            Max = c(max(delta1_list), max(delta2_list)))
 binomial_data
 ```
 
 While the improvements are certainly not as large as with the Gaussian data, the estimated beta coefficients are still significantly closer to the true coefficients with the `oracletranslasso()` function than they are with the standard lasso model.
+
+This vignette does not demonstrate the `oracletranslasso()` function's use with poisson or multinomial data but the function works in essentially the same way for these as it did for the examples above. It should be noted the `nfolds` argument only applies for binomial and multinomial data.
 
 

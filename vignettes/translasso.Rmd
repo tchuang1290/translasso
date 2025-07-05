@@ -40,8 +40,6 @@ n0 <- 100 # primary sample observations
 n <- 500 # auxiliary sample observations
 reps <- 10
 
-# initialize lists to record differences between estimated
-# and 'true' coefficients
 delta1_list <- numeric(reps)
 delta2_list <- numeric(reps)
 
@@ -84,11 +82,21 @@ for (r in 1:reps){
 Now we can look at the mean, median, and range of the two lists of differences between the estimated and true coefficients.
 
 ```{r}
-gaussian_data <- data.frame(Mean = c(mean(delta1_list), mean(delta2_list)),
-                             Median = c(median(delta1_list, median(delta2_list))),
-                             Min = c(min(delta1_list, min(delta2_list))),
-                             Max = c(max(delta1_list, max(delta2_list))))
+gaussian_data <- data.frame(Model = c("Oracle Trans Lasso", "Standard Lasso"),
+                            Mean = c(mean(delta1_list), mean(delta2_list)),
+                            Median = c(median(delta1_list), median(delta2_list)),
+                            Min = c(min(delta1_list), min(delta2_list)),
+                            Max = c(max(delta1_list), max(delta2_list)))
 gaussian_data
+```
+
+While the values in the table clearly illustrate that the Oracle Trans Lasso model can estimate coefficients far more accurately, we can more effectively make this point by visualizing our results in a box plot
+
+```{r}
+boxplot(delta1_list, delta2_list,
+        names = c("Oracle Trans Lasso", "Standard Lasso"),
+        ylab = "Squared Error from True Coefficients",
+        main = "Comparison of Model Accuracy")
 ```
 
 Now we can repeat this for binomial data. When using `oracletranslasso()` with binomial data, there are two important arguments that were not highlighted in the gaussian example: `family` and `nfolds`. 
@@ -153,7 +161,14 @@ binomial_data <- data.frame(Model = c("Oracle Trans Lasso","Standard Lasso"),
 binomial_data
 ```
 
-While the improvements are certainly not as large as with the Gaussian data, the estimated beta coefficients are still significantly closer to the true coefficients with the `oracletranslasso()` function than they are with the standard lasso model.
+```{r}
+boxplot(delta1_list, delta2_list,
+        names = c("Oracle Trans Lasso", "Standard Lasso"),
+        ylab = "Squared Error from True Coefficients",
+        main = "Comparison of Model Accuracy")
+```
+
+While the improvements are certainly not as large as with the Gaussian data, the estimated beta coefficients are still significantly closer to the true coefficients with the `oracletranslasso()` function than they are with the standard lasso model for most reps. At the very least, the estimates from the `oracletranslasso()` function will not be much worse than the estimates from the average standard Lasso model.
 
 This vignette does not demonstrate the `oracletranslasso()` function's use with poisson or multinomial data but the function works in essentially the same way for these as it did for the examples above. It should be noted the `nfolds` argument only applies for binomial and multinomial data.
 

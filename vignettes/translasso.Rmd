@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The `translasso` package implements a transfer learning approach for high-dimensional regression using the oracle transfer Lasso algorithm. To perform transfer learning, we take information from an auxiliary dataset and apply it to the primary dataset to improve estimation and prediction. This method is particularly useful when the primary dataset is small and the auxiliary dataset comes from a related but not identical distribution.
+The `translasso` package implements a transfer learning approach for high-dimensional regression using the Oracle Trans-Lasso algorithm. To perform transfer learning, we take information from an auxiliary dataset and apply it to the primary dataset to improve estimation and prediction. This method is particularly useful when the primary dataset is small and the auxiliary dataset comes from a related but not identical distribution.
 
 This vignette illustrates how to apply the `oracleTransLasso()` function on both Gaussian and Binomial data and compares its estimation performance against a standard Lasso model fit with `glmnet`.
 
